@@ -1,6 +1,13 @@
 import { LinksFunction, LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { getUrlOriginWithPath } from '~/utils';
 import styles from './_index.module.scss';
+import classes from './route.module.scss';
+import { ToolBar } from '../../../src/components/tool-bar/tool-bar';
+import { NavBar } from '../../../src/components/nav-bar/nav-bar';
+import { WebGLComponent } from '../../../src/components/web-gl-component/web-gl-component';
+import { StatPanelComponent } from '../../../src/components/stat-panel-component/stat-panel-component';
+import { ToDoListComponent } from '../../../src/components/to-do-list-component/to-do-list-component';
+import DarwinLogo from '../../../src/assets/img/DarwinDuckOnlyIcon.png';
 
 export const loader = ({ request }: LoaderFunctionArgs) => {
     return { canonicalUrl: getUrlOriginWithPath(request.url) };
@@ -8,20 +15,34 @@ export const loader = ({ request }: LoaderFunctionArgs) => {
 
 export default function HomePage() {
     return (
-        <div className={styles.root}>
-            <h2 className={styles.title}>Welcome To App Homepage 🎉</h2>
-            <span className={styles.paragraph}>
-                Drag here elements from the Add Elements Panel
-                <br /> and style them using the Styles panel
-            </span>
+        <div className={styles.darwinduckmainapp}>
+            <div className={styles.navbarcomponent}>
+                <NavBar />
+            </div>
+
+            <div className={styles.toolbarcomponentIcon}>
+                <ToolBar />
+            </div>
+
+            <div className={styles.webglcomponent}>
+                <WebGLComponent />
+            </div>
+
+            <div className={styles.statspanelcomponent}>
+                <StatPanelComponent />
+            </div>
+
+            <div className={styles.todolistcomponent}>
+                <ToDoListComponent />
+            </div>
         </div>
     );
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
-    const title = 'Blank Starter';
-    const description = 'Welcome to the Blank Starter';
-    const imageUrl = 'https://website-starter.com/og-image.png';
+    const title = 'Darwin The Duck';
+    const description = 'Your AI Study Buddy!';
+    const imageUrl = DarwinLogo;
 
     return [
         { title },

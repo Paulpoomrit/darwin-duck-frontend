@@ -9,12 +9,13 @@
     width: 100vw;
     min-height: 100vh;
     justify-content: center;
-    background-color: var(--primary);
+    background-color: whitesmoke;
 }
 
 .title {
     font: var(--large-font);
     color: var(--black);
+    font-family: 'DM Sans', sans-serif;
 }
 
 .paragraph {
@@ -28,4 +29,48 @@
 
 .detail {
     font: var(--small-font);
+}
+
+.navbarcomponent {
+    position: absolute;
+    height: 100%;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    width: 327px;
+    z-index: 5;
+}
+
+.toolbarcomponentIcon {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 100%;
+    height: 51px;
+    object-fit: contain;
+    z-index: 0;
+}
+
+.webglcomponent {
+    position: absolute;
+    bottom: 86px;
+    top: 86px;
+    left: calc(12.5% + 86px);
+    box-sizing: border-box;
+}
+
+.statspanelcomponent {
+    top: 86px;
+    position: absolute;
+    right: 45px;
+    box-sizing: border-box;
+}
+
+.todolistcomponent {
+    position: absolute;
+    top: 451px;
+    right: 45px;
+    box-sizing: border-box;
+    bottom: 86px;
+    align-content: end;
 }
