@@ -1,9 +1,9 @@
 import styles from './web-gl-component.module.scss';
-import cx from 'classnames';
+// import cx from 'classnames';
 import * as THREE from 'three';
 import { useEffect, useRef } from 'react';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { GLTFLoader } from 'three/examples/jsm/Addons.js';
+import Game from './ThreeJSModules/Game.js';
 
 export interface WebGLComponentProps {
     className?: string;
@@ -18,27 +18,18 @@ export const WebGLComponent = ({ className }: WebGLComponentProps) => {
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(
-            75,
+            50,
             container.clientWidth / container.clientHeight,
             0.1,
             1000
         );
-        camera.position.z = 1.5;
+        camera.position.set(1.5, 0.75, 2)
         const renderer = new THREE.WebGLRenderer( {antialias: true} );
         renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
 
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        // controls.target.set(0, 1, 0);
-
-        const environmentTexture = new THREE.CubeTextureLoader().setPath('https://sbcode.net/img/').load(['px.png', 'nx.png', 'py.png', 'ny.png', 'pz.png', 'nz.png'])
-        scene.environment = environmentTexture
-        scene.background = environmentTexture
-
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1);
-        scene.add(ambientLight)
-
-        container.appendChild(renderer.domElement);
 
         const handleResize = () => {
             if (!container) return;
@@ -48,47 +39,13 @@ export const WebGLComponent = ({ className }: WebGLComponentProps) => {
         };
         window.addEventListener('resize', handleResize);
 
-        let mixer: THREE.AnimationMixer;
-        const animationActions: { [key: string]: THREE.AnimationAction } = {};
 
-        const loadDarwinDuck = async () => {
-            const loader = new GLTFLoader();
-            const [duck, idle, idleToLay, lay, layToIdle, run,
-                    runLeft, runRight, walk, walkLeft, walkRight
-            ] = await Promise.all([
-                loader.loadAsync('models/Duck_Anim_Eat.glb'),
-                loader.loadAsync('models/Duck_Anim_Idle.glb'),
-                loader.loadAsync('models/Duck_Anim_IdleToLay.glb'),
-                loader.loadAsync('models/Duck_Anim_Lay.glb'),
-                loader.loadAsync('models/Duck_Anim_LayToIdle.glb'),
-                loader.loadAsync('public/models/Duck_Anim_Run.glb'),
-                loader.loadAsync('public/models/Duck_Anim_RunLeft.glb'),
-                loader.loadAsync('public/models/Duck_Anim_RunRight.glb'),
-                loader.loadAsync('public/models/Duck_Anim_Walk.glb'),
-                loader.loadAsync('public/models/Duck_Anim_WalkLeft.glb'),
-                loader.loadAsync('public/models/Duck_Anim_WalkRight.glb')
-            ]);
-            mixer = new THREE.AnimationMixer(duck.scene);
+        const game = new Game(scene, camera, renderer);
+        game.init();
+        // container.addEventListener('click', (event) => {
+        //     game.player?.animationController?.handleClick(event, container, camera);
+        // });
 
-            mixer = new THREE.AnimationMixer(duck.scene);
-
-            animationActions['eat'] = mixer.clipAction(duck.animations[0]);
-            animationActions['idle'] = mixer.clipAction(idle.animations[0]);
-            animationActions['idleToLay'] = mixer.clipAction(idleToLay.animations[0]);
-            animationActions['lay'] = mixer.clipAction(lay.animations[0]);
-            animationActions['layToIdle'] = mixer.clipAction(layToIdle.animations[0]);
-            animationActions['run'] = mixer.clipAction(run.animations[0]);
-            animationActions['runLeft'] = mixer.clipAction(runLeft.animations[0]);
-            animationActions['runRight'] = mixer.clipAction(runRight.animations[0]);
-            animationActions['walk'] = mixer.clipAction(walk.animations[0]);
-            animationActions['walkLeft'] = mixer.clipAction(walkLeft.animations[0]);
-            animationActions['walkRight'] = mixer.clipAction(walkRight.animations[0]);
-
-            animationActions['walk'].play();
-            scene.add(duck.scene);
-        };
-
-        loadDarwinDuck();
 
         let animationId: number;
         const clock = new THREE.Clock();
@@ -99,13 +56,8 @@ export const WebGLComponent = ({ className }: WebGLComponentProps) => {
 
             delta = clock.getDelta();
 
-            if (mixer) {
-                mixer.update(delta)
-            }
-
             controls.update();
-
-
+            game.update(delta);
 
             renderer.render(scene, camera);
         }

@@ -17,6 +17,7 @@
     "@types/node": "^22.13.1",
     "classnames": "^2.5.1",
     "isbot": "^5.1.22",
+    "lil-gui": "^0.20.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "three": "^0.177.0"
