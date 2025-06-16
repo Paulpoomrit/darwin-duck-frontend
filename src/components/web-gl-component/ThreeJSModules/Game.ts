@@ -11,6 +11,7 @@ export default class Game {
   camera: PerspectiveCamera
   renderer: WebGLRenderer
   player?: Player
+  environment?: Environment
   //world?: World
   //rapierDebugRenderer?: RapierDebugRenderer
   //eventQueue?: EventQueue
@@ -44,8 +45,8 @@ export default class Game {
     this.player = new Player(this.scene, this.camera, this.renderer) //, this.world, [0, 0.1, 0])
     await this.player.init()
 
-    const environment = new Environment(this.scene)
-    await environment.init()
+    this.environment = new Environment(this.scene)
+    await this.environment.init()
     // environment.light.target = this.player.followTarget
 
     // const ui = new UI(this.renderer);
@@ -60,6 +61,8 @@ export default class Game {
     //   }
     // })
     this.player?.update(delta)
+    this.environment?.animate();
+
     // this.rapierDebugRenderer?.update()
   }
 }

@@ -7,8 +7,9 @@
   height: 90vh;
   border-radius: 24px;
   overflow: hidden;
-  z-index: 10;
+  z-index: 0;
   background: #eee;
+  border: 2px solid #000;
 }
 
 canvas {
