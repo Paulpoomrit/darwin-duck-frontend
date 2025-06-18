@@ -5,16 +5,31 @@ import { useEffect, useRef } from 'react';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import Game from './ThreeJSModules/Game.js';
 
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+
+import PixelatePass from './post-processing/PixelatePass';
+
+import { Vector2 } from 'three';
+import { DuckStates } from './ThreeJSModules/enums';
+
 export interface WebGLComponentProps {
     className?: string;
+    nextState?: DuckStates;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const WebGLComponent = ({ className }: WebGLComponentProps) => {
+export const WebGLComponent = ({ className, nextState }: WebGLComponentProps) => {
     const refContainer = useRef<HTMLDivElement>(null);
     useEffect(() => {
         const container = refContainer.current;
         if (!container) return;
+
+        const screenResolution = new Vector2(container.clientWidth, container.clientHeight);
+        const renderResolution = screenResolution.clone().divideScalar(6);
+        renderResolution.x |= 0;
+        renderResolution.y |= 0;
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(
@@ -27,6 +42,14 @@ export const WebGLComponent = ({ className }: WebGLComponentProps) => {
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
+
+        // Post-processing
+        const composer = new EffectComposer(renderer);
+        composer.addPass(new RenderPass(scene, camera));
+        // composer.addPass(new RenderPixelatedPass(renderResolution, scene, camera));
+        const bloomPass = new UnrealBloomPass(screenResolution, 0.3, 0.4, 1);
+        composer.addPass(bloomPass);
+        composer.addPass(new PixelatePass(renderResolution));
 
         // Controls
         const controls = new OrbitControls(camera, renderer.domElement);
@@ -53,9 +76,6 @@ export const WebGLComponent = ({ className }: WebGLComponentProps) => {
 
         const game = new Game(scene, camera, renderer);
         game.init();
-        // container.addEventListener('click', (event) => {
-        //     game.player?.animationController?.handleClick(event, container, camera);
-        // });
 
         let animationId: number;
         const clock = new THREE.Clock();
@@ -69,7 +89,11 @@ export const WebGLComponent = ({ className }: WebGLComponentProps) => {
             controls.update();
             game.update(delta);
 
-            renderer.render(scene, camera);
+            composer.render();
+
+            if (nextState) {
+                game.player?.animationController?.setNextAnimationState(nextState);
+            }
         }
 
         animate();
@@ -83,7 +107,7 @@ export const WebGLComponent = ({ className }: WebGLComponentProps) => {
             cancelAnimationFrame(animationId);
             renderer.dispose();
         };
-    }, []);
+    }, [nextState]);
     return (
         <div ref={refContainer} className={styles.webglcomponent}>
             {' '}

@@ -85,23 +85,4 @@ export default class Duck extends Group {
     update(delta: number) {
         this.mixer?.update(delta);
     }
-
-    solidify(mesh: THREE.Mesh) {
-        const geometry = mesh.geometry;
-        const material = new THREE.ShaderMaterial({
-            vertexShader: /* glsl */ `
-                void main() {
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1);
-                }
-             `,
-            fragmentShader: /* glsl */ `
-                void main() {
-                    gl_FragColor = vec4(1,0,0,1);
-                }
-             `,
-        });
-
-        const outline = new THREE.Mesh(geometry, material);
-        return outline;
-    }
 }

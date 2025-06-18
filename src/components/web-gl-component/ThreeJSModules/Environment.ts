@@ -1,4 +1,4 @@
-import { DirectionalLight, Scene } from 'three';
+import {Scene } from 'three';
 import * as THREE from 'three';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 // import grassShader from '../shaders/grass.js';
@@ -7,7 +7,6 @@ import grassFragShader from '../shaders/glsl/grass.frag.glsl?raw';
 
 export default class Environment {
     scene: Scene;
-    light: DirectionalLight;
     PLANE_SIZE: number;
     BLADE_COUNT: number;
     BLADE_WIDTH: number;
@@ -47,13 +46,15 @@ export default class Environment {
         });
 
         // Add a dirt plane
-        const geometry = new THREE.PlaneGeometry(this.PLANE_SIZE/2, this.PLANE_SIZE/2);
+        const geometry = new THREE.PlaneGeometry(this.PLANE_SIZE / 2, this.PLANE_SIZE / 2);
         const material = new THREE.MeshStandardMaterial({ color: 0x8b5a2b }); // brown dirt color
         const dirtPlane = new THREE.Mesh(geometry, material);
         dirtPlane.rotation.x = -Math.PI / 2;
         dirtPlane.position.y = 0;
         dirtPlane.receiveShadow = true;
         this.scene.add(dirtPlane);
+
+        this.addLighting();
     }
 
     async init() {
@@ -200,5 +201,66 @@ export default class Environment {
             const elapsedTime = Date.now() - this.startTime;
             this.grassUniforms.iTime.value = elapsedTime;
         }
+    }
+
+    addLighting() {
+        // Slightly brighter ambient for overall balance
+        const ambient = new THREE.AmbientLight(0xfff7e0, 0.7);
+        this.scene.add(ambient);
+
+        // Strong sunlight with a golden tint
+        const sun = new THREE.DirectionalLight(0xffe066, 2.2);
+        sun.position.set(20, 40, 20);
+        sun.castShadow = true;
+        sun.shadow.mapSize.width = 2048;
+        sun.shadow.mapSize.height = 2048;
+        sun.shadow.camera.near = 1;
+        sun.shadow.camera.far = 100;
+        sun.shadow.camera.left = -40;
+        sun.shadow.camera.right = 40;
+        sun.shadow.camera.top = 40;
+        sun.shadow.camera.bottom = -40;
+        sun.shadow.bias = -0.001;
+        this.scene.add(sun);
+
+        // Focused spot light above duck (bright white)
+        const spot = new THREE.SpotLight(0xffffff, 2.8, 80, Math.PI / 8, 0.3, 2);
+        spot.position.set(0, 25, 10);
+        spot.target.position.set(0, 0, 0);
+        spot.castShadow = true;
+        spot.shadow.mapSize.width = 2048;
+        spot.shadow.mapSize.height = 2048;
+        this.scene.add(spot);
+        this.scene.add(spot.target);
+
+        // Colorful rim light for separation (magenta)
+        const rim = new THREE.PointLight(0xff66cc, 1.0, 100);
+        rim.position.set(0, 15, -30);
+        this.scene.add(rim);
+
+        // Stronger warm fill light from the left (orange)
+        const fillLeft = new THREE.PointLight(0xffa500, 1.5, 150);
+        fillLeft.position.set(-30, 15, 0); // Move more to the left and up
+        this.scene.add(fillLeft);
+
+        // Additional cool fill light from the left-back (cyan)
+        const fillLeftBack = new THREE.PointLight(0x66ccff, 1.0, 120);
+        fillLeftBack.position.set(-25, 10, -20);
+        this.scene.add(fillLeftBack);
+
+        // Cool fill light from the right (blue)
+        const fillRight = new THREE.PointLight(0x66ccff, 0.7, 120);
+        fillRight.position.set(20, 10, 20);
+        this.scene.add(fillRight);
+
+        // Subtle ground bounce light (pale yellow)
+        const bounce = new THREE.PointLight(0xf5e6c6, 0.4, 60);
+        bounce.position.set(0, 2, 0);
+        this.scene.add(bounce);
+
+        // Low sunset light for extra color (deep orange/red)
+        const sunset = new THREE.DirectionalLight(0xff7043, 0.5);
+        sunset.position.set(-30, 5, -30);
+        this.scene.add(sunset);
     }
 }

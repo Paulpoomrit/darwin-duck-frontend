@@ -180,27 +180,8 @@ export default class AnimationController {
         this.model?.update(delta);
     }
 
-    // handleClick(event: MouseEvent, container: HTMLDivElement, camera: THREE.Camera) {
-    //     if (!this.model || this.wait) {
-    //         return;
-    //     }
-    //     const intersects = getIntersects(event, container, camera, this.model.children);
-    //     if (intersects.length > 0) {
-    //         const state = this.duckStates[this.duckStateIndex];
-    //         const action = this.animationActions[state];
-    //         if (action) {
-    //             this.setAction(action);
+    setNextAnimationState(nextAction: DuckStates) {
+        this.nextAction = nextAction;
+    }
 
-    //             //Only wait for non-looping actions
-    //             action.clampWhenFinished = true;
-    //             action.setLoop(THREE.LoopOnce, 1);
-
-    //             this.wait = true;
-    //             action.getMixer().addEventListener('finished', () => {
-    //                 this.wait = false;
-    //             });
-    //         }
-    //         this.duckStateIndex = (this.duckStateIndex + 1) % this.duckStates.length;
-    //     }
-    // }
 }
