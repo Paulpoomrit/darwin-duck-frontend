@@ -23,13 +23,25 @@ export const WebGLComponent = ({ className }: WebGLComponentProps) => {
             0.1,
             1000
         );
-        camera.position.set(1.5, 0.75, 2)
-        const renderer = new THREE.WebGLRenderer( {antialias: true} );
+        camera.position.set(1.5, 0.75, 2);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
 
+        // Controls
         const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enablePan = false;
+        controls.enableZoom = false;
+        controls.minPolarAngle = 1.1;
+        controls.maxPolarAngle = 1.45;
         controls.enableDamping = true;
+        controls.dampingFactor = 0.1;
+        controls.target.set(0, 1.5, 0);
+
+        // Camera
+        camera.position.set(-7, 3, 7);
+        camera.lookAt(controls.target);
+        camera.setFocalLength(65);
 
         const handleResize = () => {
             if (!container) return;
@@ -39,20 +51,18 @@ export const WebGLComponent = ({ className }: WebGLComponentProps) => {
         };
         window.addEventListener('resize', handleResize);
 
-
         const game = new Game(scene, camera, renderer);
         game.init();
         // container.addEventListener('click', (event) => {
         //     game.player?.animationController?.handleClick(event, container, camera);
         // });
 
-
         let animationId: number;
         const clock = new THREE.Clock();
         let delta = 0;
 
         function animate() {
-            animationId =  requestAnimationFrame(animate);
+            animationId = requestAnimationFrame(animate);
 
             delta = clock.getDelta();
 
@@ -74,5 +84,9 @@ export const WebGLComponent = ({ className }: WebGLComponentProps) => {
             renderer.dispose();
         };
     }, []);
-    return (<div ref={refContainer} className={styles.webglcomponent}> </div>);
+    return (
+        <div ref={refContainer} className={styles.webglcomponent}>
+            {' '}
+        </div>
+    );
 };

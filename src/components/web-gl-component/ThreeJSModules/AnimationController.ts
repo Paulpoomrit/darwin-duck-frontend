@@ -29,6 +29,8 @@ export default class AnimationController {
         'walkLeft',
         'walkRight',
     ];
+    private targetY?: number;
+    private yLerpSpeed = 0.05;
 
     constructor(scene: Scene) {
         this.scene = scene;
@@ -36,6 +38,9 @@ export default class AnimationController {
 
     async init() {
         this.model = new Duck();
+        this.model.scale.set(5, 5, 5);
+        this.model.rotateY(-Math.PI / 2);
+        this.model.position.set(0, 0.25, 0);
         this.activeAction = this.animationActions['lay'];
         await this.model.init(this.animationActions);
         this.scene.add(this.model);
@@ -77,6 +82,9 @@ export default class AnimationController {
                             idleToLayAction.fadeIn(1).play();
                             this.activeAction = idleToLayAction;
                             actionAssigned = true;
+                            if (this.model) {
+                                this.targetY = this.model.position.y - 0.25;
+                            }
 
                             // When idleToLay finishes, play lay (looping)
                             const onIdleToLayFinished = () => {
@@ -118,6 +126,9 @@ export default class AnimationController {
                             layToIdleAction.fadeIn(1).play();
                             this.activeAction = layToIdleAction;
                             actionAssigned = true;
+                            if (this.model) {
+                                this.targetY = this.model.position.y + 0.25;
+                            }
 
                             const onLayToIdleActionFinished = () => {
                                 layToIdleAction
@@ -150,6 +161,18 @@ export default class AnimationController {
                     this.setAction(eatAction);
                     actionAssigned = true;
                 }
+            }
+        }
+
+        // Smoothly interpolate Y position if needed
+        if (this.model && this.targetY !== undefined) {
+            const currentY = this.model.position.y;
+            const diff = this.targetY - currentY;
+            if (Math.abs(diff) > 0.001) {
+                this.model.position.y += diff * this.yLerpSpeed;
+            } else {
+                this.model.position.y = this.targetY;
+                this.targetY = undefined;
             }
         }
 

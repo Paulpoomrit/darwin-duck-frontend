@@ -1,5 +1,6 @@
-import { DirectionalLight, GridHelper, Scene } from 'three';
+import { DirectionalLight, Scene } from 'three';
 import * as THREE from 'three';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 // import grassShader from '../shaders/grass.js';
 import grassVertShader from '../shaders/glsl/grass.vert.glsl?raw';
 import grassFragShader from '../shaders/glsl/grass.frag.glsl?raw';
@@ -26,18 +27,33 @@ export default class Environment {
 
     constructor(scene: Scene) {
         this.scene = scene;
-        this.PLANE_SIZE = 50;
-        this.BLADE_COUNT = 100000;
+        this.PLANE_SIZE = 25;
+        this.BLADE_COUNT = 300000;
         this.BLADE_WIDTH = 0.1;
         this.BLADE_HEIGHT = 0.5;
         this.BLADE_HEIGHT_VARIATION = 0.2;
 
-        this.scene.add(new GridHelper(50, 50));
+        const hdr = 'autumn_field_puresky_4k.hdr';
 
-        this.light = new DirectionalLight(0xffffff, Math.PI);
-        this.light.position.set(65.7, 19.2, 50.2);
-        this.light.castShadow = true;
-        this.scene.add(this.light);
+        let environmentTexture: THREE.DataTexture;
+
+        // hdr env
+        new RGBELoader().load(hdr, (texture) => {
+            environmentTexture = texture;
+            environmentTexture.mapping = THREE.EquirectangularReflectionMapping;
+            this.scene.environment = environmentTexture;
+            this.scene.background = environmentTexture;
+            this.scene.environmentIntensity = 0.5; // added in Three r163
+        });
+
+        // Add a dirt plane
+        const geometry = new THREE.PlaneGeometry(this.PLANE_SIZE/2, this.PLANE_SIZE/2);
+        const material = new THREE.MeshStandardMaterial({ color: 0x8b5a2b }); // brown dirt color
+        const dirtPlane = new THREE.Mesh(geometry, material);
+        dirtPlane.rotation.x = -Math.PI / 2;
+        dirtPlane.position.y = 0;
+        dirtPlane.receiveShadow = true;
+        this.scene.add(dirtPlane);
     }
 
     async init() {
