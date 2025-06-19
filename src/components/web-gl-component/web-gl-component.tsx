@@ -1,7 +1,7 @@
 import styles from './web-gl-component.module.scss';
 // import cx from 'classnames';
 import * as THREE from 'three';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import Game from './ThreeJSModules/Game.js';
 
@@ -15,13 +15,112 @@ import { Vector2 } from 'three';
 import { DuckStates } from './ThreeJSModules/enums';
 
 export interface WebGLComponentProps {
-    className?: string;
     nextState?: DuckStates;
+    aiEvaluation?: {
+        clarity: number;
+        accuracy: number;
+        engagement: number;
+        suggestions: string[];
+        evidence: string[];
+        overall_comment: string;
+    };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const WebGLComponent = ({ className, nextState }: WebGLComponentProps) => {
+export const WebGLComponent = ({ nextState, aiEvaluation }: WebGLComponentProps) => {
     const refContainer = useRef<HTMLDivElement>(null);
+    const [progress1, setProgress1] = useState(0);
+    const [progress2, setProgress2] = useState(0);
+    const [progress3, setProgress3] = useState(0);
+    const [progressPosition, setProgressPosition] = useState({ top: 20, left: 20, right: 20 });
+
+    // Calculate reactive position for progress bars
+    const updateProgressPosition = useCallback(() => {
+        const container = refContainer.current;
+        if (!container) return;
+
+        const containerRect = container.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+        
+        // Calculate responsive positioning - bottom placement
+        const bottom = Math.max(1, 0);
+        const top = containerRect.height - bottom - 100; // 120px for 3 progress bars + gaps
+        const left = Math.max(20, containerRect.width * 0.05);
+        const right = Math.max(20, containerRect.width * 0.05);
+        
+        setProgressPosition({ top, left, right });
+    }, []);
+
+    // Update position on mount and resize
+    useEffect(() => {
+        updateProgressPosition();
+        window.addEventListener('resize', updateProgressPosition);
+        return () => window.removeEventListener('resize', updateProgressPosition);
+    }, [updateProgressPosition]);
+
+    // Use AI evaluation data if available, otherwise use animated values
+    useEffect(() => {
+        if (aiEvaluation) {
+            // Animate to new AI values smoothly
+            const animateToValue = (currentValue: number, targetValue: number, setter: (value: number) => void) => {
+                const duration = 1000; // 1 second animation
+                const startTime = Date.now();
+                const startValue = currentValue;
+                const change = targetValue - startValue;
+                
+                const animate = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    // Easing function for smooth animation
+                    const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+                    const currentValue = startValue + (change * easeOutQuart);
+                    
+                    setter(currentValue);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    }
+                };
+                
+                animate();
+            };
+            
+            animateToValue(progress1, aiEvaluation.clarity, setProgress1);
+            animateToValue(progress2, aiEvaluation.accuracy, setProgress2);
+            animateToValue(progress3, aiEvaluation.engagement, setProgress3);
+        } else {
+            // Fallback to animated values when no AI data is available
+            const interval1 = setInterval(() => {
+                setProgress1(prev => {
+                    if (prev >= 85) return 85;
+                    return prev + 1;
+                });
+            }, 100);
+
+            const interval2 = setInterval(() => {
+                setProgress2(prev => {
+                    if (prev >= 92) return 92;
+                    return prev + 1.5;
+                });
+            }, 80);
+
+            const interval3 = setInterval(() => {
+                setProgress3(prev => {
+                    if (prev >= 78) return 78;
+                    return prev + 1.2;
+                });
+            }, 90);
+
+            return () => {
+                clearInterval(interval1);
+                clearInterval(interval2);
+                clearInterval(interval3);
+            };
+        }
+    }, [aiEvaluation]);
+
     useEffect(() => {
         const container = refContainer.current;
         if (!container) return;
@@ -45,11 +144,13 @@ export const WebGLComponent = ({ className, nextState }: WebGLComponentProps) =>
 
         // Post-processing
         const composer = new EffectComposer(renderer);
-        composer.addPass(new RenderPass(scene, camera));
+        const renderPass = new RenderPass(scene, camera);
+        composer.addPass(renderPass);
         // composer.addPass(new RenderPixelatedPass(renderResolution, scene, camera));
         const bloomPass = new UnrealBloomPass(screenResolution, 0.3, 0.4, 1);
         composer.addPass(bloomPass);
-        composer.addPass(new PixelatePass(renderResolution));
+        const pixelatePass = new PixelatePass(renderResolution);
+        composer.addPass(pixelatePass);
 
         // Controls
         const controls = new OrbitControls(camera, renderer.domElement);
@@ -100,17 +201,90 @@ export const WebGLComponent = ({ className, nextState }: WebGLComponentProps) =>
 
         // Cleanup function
         return () => {
+            // Cancel animation frame
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+
+            // Remove event listeners
             window.removeEventListener('resize', handleResize);
+
+            // Dispose of controls
+            controls.dispose();
+
+            // Dispose of post-processing passes
+            if (bloomPass) {
+                bloomPass.dispose();
+            }
+            if (pixelatePass && pixelatePass.dispose) {
+                pixelatePass.dispose();
+            }
+
+            // Dispose of composer
+            if (composer) {
+                composer.dispose();
+            }
+
+            // Dispose of renderer
+            if (renderer) {
+                renderer.dispose();
+            }
+
+            // Remove canvas from DOM
             if (container && renderer.domElement.parentNode === container) {
                 container.removeChild(renderer.domElement);
             }
-            cancelAnimationFrame(animationId);
-            renderer.dispose();
+
+            // Dispose of scene and camera
+            if (scene) {
+                scene.clear();
+            }
         };
     }, [nextState]);
+
     return (
         <div ref={refContainer} className={styles.webglcomponent}>
-            {' '}
+            <div 
+                className={styles.progressOverlay}
+                style={{
+                    top: `${progressPosition.top}px`,
+                    left: `${progressPosition.left}px`,
+                    right: `${progressPosition.right}px`
+                }}
+            >
+                <div className={styles.progressBar}>
+                    <div className={styles.progressLabel}>Clarity</div>
+                    <div className={styles.progressTrack}>
+                        <div 
+                            className={styles.progressFill} 
+                            style={{ width: `${progress1}%` }}
+                        ></div>
+                    </div>
+                    <div className={styles.progressValue}>{Math.round(progress1)}%</div>
+                </div>
+                
+                <div className={styles.progressBar}>
+                    <div className={styles.progressLabel}>Accuracy</div>
+                    <div className={styles.progressTrack}>
+                        <div 
+                            className={styles.progressFill} 
+                            style={{ width: `${progress2}%` }}
+                        ></div>
+                    </div>
+                    <div className={styles.progressValue}>{Math.round(progress2)}%</div>
+                </div>
+                
+                <div className={styles.progressBar}>
+                    <div className={styles.progressLabel}>Engagement</div>
+                    <div className={styles.progressTrack}>
+                        <div 
+                            className={styles.progressFill} 
+                            style={{ width: `${progress3}%` }}
+                        ></div>
+                    </div>
+                    <div className={styles.progressValue}>{Math.round(progress3)}%</div>
+                </div>
+            </div>
         </div>
     );
 };

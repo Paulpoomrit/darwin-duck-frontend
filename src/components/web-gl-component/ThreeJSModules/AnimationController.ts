@@ -15,20 +15,6 @@ export default class AnimationController {
     model?: Duck;
     gui?: GUI;
 
-    private duckStateIndex = 0;
-    private duckStates = [
-        'idle',
-        'idleToLay',
-        'lay',
-        'layToIdle',
-        'eat',
-        'run',
-        'runLeft',
-        'runRight',
-        'walk',
-        'walkLeft',
-        'walkRight',
-    ];
     private targetY?: number;
     private yLerpSpeed = 0.05;
 
