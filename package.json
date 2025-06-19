@@ -17,14 +17,17 @@
     "@types/node": "^22.13.1",
     "classnames": "^2.5.1",
     "isbot": "^5.1.22",
+    "lil-gui": "^0.20.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "three": "^0.177.0"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.15.3",
     "@remix-run/testing": "^2.15.3",
     "@types/react": "^18.3.13",
     "@types/react-dom": "^18.3.1",
+    "@types/three": "^0.177.0",
     "@typescript-eslint/eslint-plugin": "^7.13.1",
     "@wixc3/define-remix-app": "^4.6.2",
     "@wixc3/react-board": "^4.6.2",

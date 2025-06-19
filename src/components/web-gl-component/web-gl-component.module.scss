@@ -1,13 +1,20 @@
 .root {
 }
 
-.webglcomponent{
-    border-radius: 15px;
-    background-color: #f6f6e9;
-    border: 2px solid #000;
-    box-sizing: border-box;
-    
-    width: 60vw;
-    height: 90vh;
+.webglcomponent {
+  position: relative;
+  width: 60vw;
+  height: 90vh;
+  border-radius: 24px;
+  overflow: hidden;
+  z-index: 10;
+  background: #eee;
+  border: 2px solid #000;
 }
 
+canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+    border-radius: inherit;
+}

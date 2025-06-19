@@ -8,6 +8,7 @@ import { WebGLComponent } from '../../../src/components/web-gl-component/web-gl-
 import { StatPanelComponent } from '../../../src/components/stat-panel-component/stat-panel-component';
 import { ToDoListComponent } from '../../../src/components/to-do-list-component/to-do-list-component';
 import DarwinLogo from '../../../src/assets/img/DarwinDuckOnlyIcon.png';
+import { DuckStates } from '~/components/web-gl-component/ThreeJSModules/enums';
 
 export const loader = ({ request }: LoaderFunctionArgs) => {
     return { canonicalUrl: getUrlOriginWithPath(request.url) };
@@ -25,7 +26,7 @@ export default function HomePage() {
             </div>
 
             <div className={styles.webglcomponent}>
-                <WebGLComponent />
+                <WebGLComponent nextState={DuckStates.IDLE}/>
             </div>
 
             <div className={styles.statspanelcomponent}>
