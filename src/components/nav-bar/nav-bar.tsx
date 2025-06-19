@@ -1,16 +1,11 @@
 import styles from './nav-bar.module.scss';
-import cx from 'classnames';
 import LogoPng from '../../assets/img/logo.png';
 import IconCoursesPng from '../../assets/img/icon-courses.png';
 import IconStudyplanPng from '../../assets/img/icon-studyplan.png';
 import IconNewduckPng from '../../assets/img/icon-newduck.png';
 import IconSettingsPng from '../../assets/img/icon-settings.png';
 
-export interface NavBarProps {
-    className?: string;
-}
-
-export const NavBar = ({ className }: NavBarProps) => {
+export const NavBar = () => {
     return (
         <div className={styles.navbarcomponent}>
             <div className={styles.navbarBg} />

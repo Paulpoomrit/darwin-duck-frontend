@@ -1,5 +1,5 @@
 import styles from './tool-bar.module.scss';
-import cx from 'classnames';
+// import cx from 'classnames';
 
 import HelpCircleIcon from '../../assets/img/help.png';
 // import PauseCircleIcon from '../../assets/img/pause_circle.png';
@@ -8,10 +8,10 @@ import HelpCircleIcon from '../../assets/img/help.png';
 import FullScreenIcon from '../../assets/img/arrows_output.png';
 
 export interface ToolBarProps {
-    className?: string;
+    // className?: string;
 }
 
-export const ToolBar = ({ className }: ToolBarProps) => {
+export const ToolBar = ({ }: ToolBarProps) => {
     return (
         <header className={styles.toolbarcomponentIcon}>
             <div className={styles.toolbarbg}>

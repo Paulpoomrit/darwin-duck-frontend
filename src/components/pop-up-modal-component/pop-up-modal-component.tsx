@@ -1,13 +1,12 @@
 import styles from './pop-up-modal-component.module.scss';
-import cx from 'classnames';
 import PopupbgPng from '../../assets/img/popupbg.png';
 import Exitbutton1Png from '../../assets/img/exitbutton 1.png';
 
-export interface PopUpModalComponentProps {
-    className?: string;
+interface PopUpModalComponentProps {
+    onClose?: () => void;
 }
 
-export const PopUpModalComponent = ({ className }: PopUpModalComponentProps) => {
+export const PopUpModalComponent = ({ onClose }: PopUpModalComponentProps) => {
     return (
         <div className={styles.popupbg1Parent}>
             <img className={styles.popupbg1Icon} alt="" src={PopupbgPng} />
@@ -17,7 +16,7 @@ export const PopUpModalComponent = ({ className }: PopUpModalComponentProps) => 
             <div className={styles.quackQuack}>
                 <p className={styles.quackQuack1}>{`Quack Quack! `}</p>
             </div>
-            <img className={styles.exitbutton1Icon} alt="" src={Exitbutton1Png} />
+            <img className={styles.exitbutton1Icon} alt="Close" src={Exitbutton1Png} onClick={onClose} style={{ cursor: 'pointer' }} />
         </div>
     );
 };
