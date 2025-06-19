@@ -46,8 +46,11 @@ export default class AnimationController {
         this.scene.add(this.model);
 
         this.nextAction = DuckStates.IDLE;
+
+        // GUI
         this.gui = new GUI();
         const duckStates = this.gui.addFolder('Duck States');
+
         duckStates.add(this, 'nextAction', {
             idle: DuckStates.IDLE,
             eat: DuckStates.EAT,
